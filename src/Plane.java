@@ -12,34 +12,12 @@ import java.util.Scanner;
 public class Plane {
 
 	public static void main(String[] args) {
-		// Vous devez réaliser une appli de gestion du cycle de vie d’avions Airbus. Un
-		// avion est caractérisé par son identifiant unique, son programme (A320, A400M,
-		// A380, A300…), sa phase actuelle (étude
-		// de faisabilité, conception, définition, construction, en service, clôturé),
-		// son type (Fret, transport passager, militaire, avions d’affaires…)
-
 		// hashmap pour stocker les avions => plane (id,programme,phase,type)
 		Map<Integer, ArrayList<String>> planes = new HashMap<Integer, ArrayList<String>>();
 		Scanner scan = new Scanner(System.in);
-		int choice = 0;
-
-		System.out.println(
-				"Bienvenue dans l'application de gestion du cycle de vie d'avions AIRBUS, faites votre choix dans le menu :");
-		System.out.println();
-		System.out.println("1 : Afficher tous les avions");
-		System.out.println("2 : Afficher tous les avions contenant un mot clé dans le programme");
-		System.out.println("3 : Ajouter ou supprimer une pièce pour un avion donné");
-		System.out.println("4 : Afficher un avion avec les infos détaillées de chaque pièce");
-		System.out.println("5 : Quitter  l'application !");
-
-		// gérer les saisies erronnées !
-		while (!scan.hasNextInt())
-			scan.next();
-		choice = scan.nextInt();
 
 		// moyen d'afficher un tableau : 1 printLn() 2 boucle for 3 boucle foreach 4
 		// utiliser iterator() avec la methode hasNext() 5 utiliser ListIterator
-
 		planes.put(1,
 				new ArrayList<>(Arrays.asList("A320", "PLM_AIRBUS_IN_SERVICE", "Passenger", "propeller", "engine")));
 		planes.put(2,
@@ -52,7 +30,7 @@ public class Plane {
 		planes.put(7,
 				new ArrayList<>(Arrays.asList("A350", "PLM_AIRBUS_IN_SERVICE", "Passenger", "propeller", "engine")));
 
-		// items for planes Cockpit. ...
+		// items for planes
 		Map<String, ArrayList<String>> items = new HashMap<String, ArrayList<String>>();
 		items.put("wings", new ArrayList<>(Arrays.asList("metal_raw_material", "700.50€")));
 		items.put("tail", new ArrayList<>(Arrays.asList("composite_material", "1700.50€")));
@@ -60,14 +38,51 @@ public class Plane {
 		items.put("propeller", new ArrayList<>(Arrays.asList("stainless steel", "520.50€")));
 		items.put("landing-gear", new ArrayList<>(Arrays.asList("Ti-alloy", "1700.50€")));
 
-		// gérer le choix de l'utilisateur
+		do {// gérer le choix de l'utilisateur
+			bienvenuMenu();
+			menuPlm(planes, scan, items);
+		} while (showMenu(scan));
+	}
+
+	/**
+	 * @param planes
+	 * @param scan
+	 * @param items
+	 */
+	private static boolean showMenu(Scanner scan) {
+		System.out.println("\nVoulez vous rester dans le menu pricipale ? O/N");
+		String response = scan.next();
+		while (response.equals("o")) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @param planes
+	 * @param scan
+	 * @param items
+	 */
+	private static void menuPlm(Map<Integer, ArrayList<String>> planes, Scanner scan,
+			Map<String, ArrayList<String>> items) {
+		int choice = 0;
+		// bienvenuMenu();
+
+		// gérer les saisies erronnées !
+		while (!scan.hasNextInt())
+			scan.next();
+		choice = scan.nextInt();
+
 		if (choice == 1)
 			showAll(planes);
 		// tous les avions contenant un mot clé
 		if (choice == 2) {
 			System.out.println("Taper votre recherche : exemple(A300,A,A400...)");
 			String search = scan.next();
-			showAll(findAllByKey(search, planes));
+			if (findAllByKey(search, planes).isEmpty()) {
+				System.out.println("Aucune correspondance !");
+			} else
+				showAll(findAllByKey(search, planes));
 		}
 
 		// permettre d’ajouter(acheter) des pièces pour un avion donné
@@ -91,14 +106,6 @@ public class Plane {
 						idPlane = scan.nextInt();
 					}
 					addItem(idPlane, item, planes);
-
-					// supprimer en cas d'ereur !
-//					System.out.println("Est ce que vous voulez garder ce changement O/N :");
-//					String response = scan.next();
-//					if (response.equals("n")) {
-//						deleteItem(idPlane, item, planes);
-//					}
-
 				}
 			}
 			if (choiceDeleteOrAdd == 2) {
@@ -110,9 +117,7 @@ public class Plane {
 				System.out.println("Saisissez le nom de la pièce que vous voulez supprimer :");
 				String item = scan.next();
 				deleteItem(idPlane, item, planes);
-
 			}
-
 		}
 		// afficher les détails d'un avion
 		if (choice == 4) {
@@ -125,11 +130,26 @@ public class Plane {
 		if (choice == 5) {
 			System.out.println("A bientôt !");
 			System.exit(0);
+			scan.close();
 		}
-		scan.close();
 	}
 
 	/**
+	 * 
+	 */
+	private static void bienvenuMenu() {
+		System.out.println(
+				"Bienvenue dans l'application de gestion du cycle de vie d'avions AIRBUS, faites votre choix dans le menu :");
+		System.out.println("\n1 : Afficher tous les avions");
+		System.out.println("2 : Afficher tous les avions contenant un mot clé dans le programme");
+		System.out.println("3 : Ajouter ou supprimer une pièce pour un avion donné");
+		System.out.println("4 : Afficher un avion avec les infos détaillées de chaque pièce");
+		System.out.println("5 : Quitter  l'application !");
+	}
+
+	/**
+	 * find plane by id
+	 * 
 	 * @param idPlane demander l id de l avion
 	 * @param planes  fournir le tableau d avions
 	 * @param items   fournir un tableau de pièces
@@ -146,10 +166,8 @@ public class Plane {
 						if (entryItem.getKey().contains(entry.getValue().get(i))) {
 							System.out.println(entryItem.getKey() + " = " + entryItem.getValue());
 						}
-
 					}
 				}
-
 			}
 	}
 
@@ -162,7 +180,6 @@ public class Plane {
 				System.out.println("l'avion " + entry.getValue().get(0) + " à été modifier");
 				System.out.println(entry.getKey() + " = " + entry.getValue());
 			}
-
 	}
 
 	// trouver la liste des avions contenant un mot clé => programme
@@ -176,11 +193,9 @@ public class Plane {
 			counter++;
 		}
 		return listeSearched;
-
 	}
 
 	public static void showAll(Map<Integer, ArrayList<String>> planes) {
-
 		for (Entry<Integer, ArrayList<String>> entry : planes.entrySet())
 			System.out.println(entry.getKey() + "=" + entry.getValue());
 	}
@@ -211,5 +226,4 @@ public class Plane {
 		for (Entry<Integer, ArrayList<String>> entry : planes.entrySet())
 			System.out.println(entry.getKey() + "=" + entry.getValue());
 	}
-
 }
